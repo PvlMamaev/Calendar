@@ -3,9 +3,6 @@ package com.example.ktcalendar
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
-import android.widget.CalendarView
-import android.widget.GridView
-import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 import java.lang.Exception
 import java.util.*
@@ -16,32 +13,34 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val currentData = Calendar.getInstance() // Контейнер даты
-        val year = currentData.get(Calendar.YEAR) // год
-        var month = currentData.get(Calendar.MONTH) + 1 // месяц числом
-        val time = CurrentTime() // Класс получения даты
+        val currentData = Calendar.getInstance() // Data container
+        var year = currentData.get(Calendar.YEAR) // Year
+        var month = currentData.get(Calendar.MONTH) + 1 // Month in Int
+        var day = currentData.get(Calendar.DAY_OF_MONTH)
 
-        textView.text = "${time.getMonth()} ${time.getYear()}" // Title
+        monthNameTitle.text = "${getMonthText(month)} $year" // Start title text
 
-        var data = MutableList<String>(getNumMonth(month), { x -> "${x + 1}" })
-        val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data)
+        val gridListItems = MutableList<String>(getNumDaysInMonth(month), { x -> "${x + 1}" })
+        val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, gridListItems)
         gridView.adapter = adapter
         gridView.numColumns = 7
 
         buttonNext.setOnClickListener {
+
             if (month != 12) {
                 month++
             } else {
                 month = 1
+                year ++
             }
 
-            data.clear()
-            for (i in 1..getNumMonth(month)) {
-                data.add(i.toString())
+            gridListItems.clear() // это наверника делается не так, но пока так)
+            for (i in 1..getNumDaysInMonth(month)) {
+                gridListItems.add(i.toString())
             }
             adapter.notifyDataSetChanged()
 
-            textView.text = "${getMonthText(month)} ${time.getYear()}"
+            monthNameTitle.text = "${getMonthText(month)} $year"
         }
 
         buttonBack.setOnClickListener {
@@ -49,19 +48,20 @@ class MainActivity : AppCompatActivity() {
                 month--
             } else {
                 month = 12
+                year --
             }
 
-            data.clear()
-            for (i in 1..getNumMonth(month)) {
-                data.add(i.toString())
+            gridListItems.clear()
+            for (i in 1..getNumDaysInMonth(month)) {
+                gridListItems.add(i.toString())
             }
             adapter.notifyDataSetChanged()
 
-            textView.text = "${getMonthText(month)} ${time.getYear()}"
+            monthNameTitle.text = "${getMonthText(month)} $year"
         }
     }
 
-    fun getNumMonth(month: Int): Int {
+    fun getNumDaysInMonth(month: Int): Int {
         return when (month) {
             1, 3, 5, 7, 8, 10, 12 -> 31
             4, 6, 9, 11 -> 30
